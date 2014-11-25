@@ -1,0 +1,8 @@
+/var/log/uahttp/*.log {
+        notifempty
+        daily
+        rotate 5
+        missingok
+        compress
+        copytruncate
+}

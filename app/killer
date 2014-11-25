@@ -1,6 +1,0 @@
-#!/bin/csh -f
-
-cd /home/uahttp/uaHTTP/
-kill -INT `cat ./pid`
-sleep 1
-kill `cat ./pid`

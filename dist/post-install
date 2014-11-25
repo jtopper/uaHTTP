@@ -1,0 +1,13 @@
+#!/bin/bash
+
+/usr/sbin/groupadd -r uahttp 2>/dev/null
+/usr/sbin/useradd -d /var/lib/uahttp -s /sbin/nologin -M -r -g uahttp uahttp 2>/dev/null
+
+/usr/bin/install -d -o uahttp -g uahttp -m 0755 /var/lib/uahttp
+/usr/bin/install -d -o uahttp -g uahttp -m 0755 /var/lib/.announcements
+/usr/bin/install -d -o uahttp -g uahttp -m 0755 /var/lib/.locks
+/bin/ln -s /srv/uahttp/root /var/lib/uahttp/root
+
+/usr/bin/install -d -o uahttp -g uahttp -m 0755 /var/log/uahttp
+
+/sbin/chkconfig --add ua2-uahttp

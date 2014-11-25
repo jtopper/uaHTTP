@@ -133,17 +133,13 @@ use Compress::Zlib;
 
 use Errno qw(EAGAIN);
 
-open(PID, "> ./pid");
-print PID $$;
-close(PID);
-
 ### START OF CONFIG ###
 
 {
   my %config = @ARGV;
 
   $DEBUG      = $config{debug}     || 1;
-  $UA         = $config{server}    || "new.ua2.org";
+  $UA         = $config{server}    || "localhost";
   $UA_PORT    = $config{port}      || 4040;
   $LOCAL_PORT = $config{localport} || 8080;
 }

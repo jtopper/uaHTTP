@@ -1,0 +1,72 @@
+#!/bin/sh
+#
+# ua2-httpd    Starting and stopping of uaHTTP
+#
+# chkconfig: 2345 80 30
+# description: UA2 wastes your time
+# processname: ICE 
+# pidfile: /var/run/ua2-httpd.pid
+
+# Source function library.
+. /etc/init.d/functions
+
+# Source networking configuration.
+[ -r /etc/sysconfig/network ] && . /etc/sysconfig/network
+
+PID_FILE=/var/run/ua2-uahttp.pid
+
+start() {
+    echo -n "Starting uaHTTP: "
+    daemonize -p ${PID_FILE} -u uahttp -c /var/lib/uahttp -o /var/log/uahttp/stdout.log -e /var/log/uahttp/stderr.log -- /usr/bin/perl -I/srv/uahttp /srv/uahttp/uaHTTP
+    RETVAL=$?
+    if [ $RETVAL -ne 0 ] ; then
+        failure
+    else
+        success
+    fi
+    echo
+}
+
+
+stop() {
+    echo -n "Stopping uaHTTP: "
+    killproc -p /var/run/ua2-uahttp.pid uaHTTP
+    RETVAL=$?
+    echo
+}
+
+restart() {
+    stop
+    start
+}
+
+rh_status() {
+    status -p $PID_FILE uaHTTP
+}
+
+rh_status_q() {
+    rh_status >/dev/null 2>&1
+}
+
+# See how we were called.
+case "$1" in
+  start)
+	rh_status_q && exit 0
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart)
+        restart
+        ;;
+  status)
+        rh_status
+        RETVAL=$?
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 2
+esac
+
+exit $RETVAL

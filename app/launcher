@@ -1,5 +1,0 @@
-#!/bin/sh
-
-while true; do
-	./uaHTTP >/dev/null 2>/dev/null
-done
