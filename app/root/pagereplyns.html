@@ -1,0 +1,48 @@
+<html>
+<head>
+<title>Page Reply</title>
+<link rel=stylesheet type="text/css" href="ua.css">
+
+<script language="JavaScript">
+<!--
+
+function pageSetup() {
+
+xuser     = opener.xuserpass;
+xpagetext = opener.xpagetextpass;
+
+document.forms.pageform.pagetext.value = xuser + " has paged you:\n\n" + xpagetext;
+document.forms.pageform.pageuser.value = xuser;
+
+document.forms.pageform.replytext.focus();
+
+}
+
+-->
+</script>
+
+</head>
+
+<body onLoad="pageSetup()">
+<form method="post" action="sendpage" name="pageform">
+<input type="hidden" name="pageuser" value="">
+<input type="hidden" name="reply" value="1">
+<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0"><tr>
+<td align=center valign=middle><table width="576" border="0" cellspacing="0" cellpadding="0" class="headers"><tr>
+<td>Page:<br><textarea name="pagetext" cols="60" rows="5" class="messagemono" style="width: 550px;" wrap="virtual"></textarea></td>
+</tr><tr>
+<td>Reply:<br><textarea name="replytext" cols="60" rows="5" class="messagemono" style="width: 550px;" wrap="virtual"></textarea></td>
+</tr><tr>
+
+<td><table border="0" cellpadding="0" cellspacing="0" width="100%"><tr>
+<td class="title" style="padding-left: 8px">Redirect if busy/not on:&nbsp;<input type="checkbox" name="redirect" value="1" checked></td>
+<td class="buttonhole"><input type="button" name="Close" value="Exit" class="button" onClick="parent.close()">
+<input type="submit" name="Send" value="Send reply" class="button"></td>
+</tr></table></td>
+
+</tr></table></td>
+</tr></table></td>
+</tr></table>
+</form>
+</body>
+</html>

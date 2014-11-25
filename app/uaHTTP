@@ -1,0 +1,302 @@
+#!/usr/bin/perl
+
+# Fri Jan 05 17:13:52 GMT 2001
+# Thu Jan 11 16:34:19 GMT 2001
+# Added <client="..."/> to userlogin
+# Added <hostname="..."/> to userlogin
+# Added refresh to folder listing
+# Fixed username not always getting through to logfile bug
+# Thu Jan 11 23:36:28 GMT 2001
+# Added ETags
+# Put request_authorisation's reply through process_request for consistancy
+# Fri Jan 19 10:57:58 GMT 2001
+# Corrected ETags to be a doublequoted string
+# Made Server header compliant
+# Thu Feb  8 18:37:32 GMT 2001
+# Added favicon for IE5 users
+# Added wholist
+# Fri Feb  9 16:45:49 GMT 2001
+# Better preserve whitespace formatting in messages though not in replies
+# Thu Feb 15 14:03:52 GMT 2001
+# First unread message displayed by folder listing if only unread messages are being displayed
+# Sat Feb 17 02:29:28 GMT 2001
+# Added search facilites
+# Sun Feb 18 21:40:17 GMT 2001
+# Added assisted search
+# Mon Apr 30 15:14:42 BST 2001
+# Extended threading to max out at 10 rather than 5
+# Fri May 25 17:17:37 BST 2001
+# Added voting capabilities
+# Added message display in monospaced font option for IE
+# Fri Jul 20 15:57:48 BST 2001
+# Added annotation creation
+# Mon Jul 23 13:14:20 BST 2001
+# Display more user information
+# Fixed the delete message display bug
+# Unread link in the folder listing now lists unread folders for subscribed and all folder listings
+# Tue Jul 24 17:32:27 BST 2001
+# You can now logout leaving a message
+# Wed Sep 26 23:22:08 BST 2001
+# Fixed security hole
+# Pass hostname in preference to address to UA in login
+# If proxied pass in original host to UA in login
+# Sat Dec 22 02:47:40 GMT 2001
+# The following have been restored by recoding to work with server v2.5
+# * Reading unsubscribed conferences
+# * Voting
+# * Displaying annotations
+# * Entering annotations (restricted to server-accepting messages)
+# Tue Dec 25 18:56:18 GMT 2001
+# Moved-From field now displayed
+# Messages restored to the wholist
+# Compact listing of In-Reply-To field
+# Tue Jan 29 18:15:51 GMT 2002
+# Cannot unsubscribe from a folder you edit
+# Wed Jan 30 15:16:56 GMT 2002
+# Default folder for posting is Private rather than Abuse
+# Thu Jan 31 17:25:54 GMT 2002
+# Added hold thread
+# Added move messages
+# Mon Feb  4 23:16:24 GMT 2002
+# Added announcement support
+# Tue Feb  5 18:18:10 GMT 2002
+# Error handling support. HTML error message rather than dying
+# Wed Feb 13 15:53:21 GMT 2002
+# Fix for Opera to convert &amp; to &
+# Update UA protocol to 2.6
+# Added change status message
+# Catch up menu added
+# Tue Feb 26 13:44:55 GMT 2002
+# Display results of votes
+# Remove voting option on closed votes.
+# Tue Mar 12 18:23:59 GMT 2002
+# Make message bodies monospaced if a high proportion of [\W_] characters
+# Fri Mar 15 15:38:16 GMT 2002
+# Use 'conditional comments' for IE wholist sort boxes
+# Tue Mar 26 15:04:20 GMT 2002
+# HTML escape announcements and wholist
+# Thu Mar 28 18:06:04 GMT 2002
+# Enabled UTF-8
+# Thu Apr 18 18:17:37 BST 2002
+# Find messages / folders / user info from the folder list page
+# Mon Apr 22 18:10:28 BST 2002
+# Edit yellow pages
+# Thu Apr 25 15:42:48 BST 2002
+# Moved images to seperate server
+# Fri May 10 14:20:00 BST 2002
+# Cleaned up voting display and added bar charts
+# Sat May 18 21:00:17 BST 2002
+# Add search to messageid/username quickjump box
+# Remove ETags
+# Sun Oct 27 17:20:00 GMT 2002
+# Show unread pages on logout
+# Thu Nov  7 13:49:48 GMT 2002
+# Show messages as Caught-up in announcements
+# Mon Nov 18 13:56:25 GMT 2002
+# Stay active when uaHTTP resets
+# Confirm unsubscribing
+# Added back conference name cookie trail (change at v2.5 of the server?)
+# Sat Nov 23 10:46:14 GMT 2002
+# URLs split by hard line breaks are now stitched back together
+# Thu Dec 19 17:44:25 GMT 2002
+# Removed stitching code. Too many false matches
+# Replaced it with JavaScript version under user control
+# Added Monospaced and URL stitching for NS6+ 
+# Fri Mar 14 14:48:33 GMT 2003
+# Cursor insertion point put at end of quoted material for replies
+# Mon Jun  9 10:52:30 BST 2003
+# Fixed handling of Private for new server version 2.7
+# Fri Jun 13 11:52:21 BST 2003
+# Tweaked page display code. Hopefully for the last time
+# Fri Jul 11 13:45:11 BST 2003
+# Made folder name in message display a link
+# Thu Feb 26 14:15:55 GMT 2004
+# Editors can update folder info
+# Members and editors of folders displayed with folder info
+# Fri Feb 27 16:37:16 GMT 2004
+# Changed wrap setting to virtual to work with Konquerer
+# Tue Aug  3 15:06:14 BST 2004
+# Force username lowercase to catch people logged in on two machines with different capitalisation of their usernames
+
+### INCLUDES ###
+
+use HTTP::Daemon;
+use HTTP::Status;
+
+use EDF::Object;
+use EDF::Constants qw(Login Sex ANSI Access Folder);
+use EDF::Connect qw(Locking);
+#use EDF::Client::Watch;
+
+use Compress::Zlib;
+#use MD5;
+
+use Errno qw(EAGAIN);
+
+open(PID, "> ./pid");
+print PID $$;
+close(PID);
+
+### START OF CONFIG ###
+
+{
+  my %config = @ARGV;
+
+  $DEBUG      = $config{debug}     || 1;
+  $UA         = $config{server}    || "new.ua2.org";
+  $UA_PORT    = $config{port}      || 4040;
+  $LOCAL_PORT = $config{localport} || 8080;
+}
+
+$VERSION = "0.2b7";
+$EDFPMVERSION = $EDF::Object::VERSION;
+
+#$IMAGEDIR = "http://www.compsoc.man.ac.uk/~sirhc/images/uaHTTP";
+#$IMAGEDIR = "http://ua2.mcc.ac.uk/uaHTTPimg";
+$IMAGEDIR = "images";
+#$IMAGEDIR = "/uaHTTPimg";
+
+# Global hash to store editor rights
+%EDITOR = {};
+
+### END OF CONFIG ###
+
+$SIG{CHLD} = 'IGNORE';
+$SIG{INT} = sub { print LOG "INT " . scalar(localtime) . "\n"; die; };
+
+require "uaHTTP_authenticate.pl";
+require "uaHTTP_process.pl";
+require "uaHTTP_general.pl";
+require "uaHTTP_display.pl";
+
+$SIG{__DIE__} = \&recover_pages;
+
+%handle = ();
+
+open (LOG, ">> /var/log/uahttp/access.log");
+select((select(LOG), $| = 1)[0]);
+
+my $server = HTTP::Daemon->new(
+	Proto		=> 'tcp',
+        LocalPort	=> $LOCAL_PORT,
+        Listen		=> SOMAXCONN,
+        Reuse		=> 1
+) || die "Cannot start server: $!\n";
+
+print LOG "Starting " . scalar(localtime) . "\n";
+print "Server established: ", $server->url, "\n" if ($DEBUG);
+
+while (my $connect = $server->accept) {
+
+  my $peerhost = $connect->peerhost;
+
+  print "Connect from ", $peerhost, "\n" if ($DEBUG);
+
+  while (my $request = $connect->get_request) {
+
+    print "Request: ~", $request->uri, "~\n" if ($DEBUG);
+
+    if (my $forwarded = $request->header('X-Forwarded-For')) {
+      $peerhost = $forwarded;
+    }
+
+    my $uri;
+
+    if (($uri ||= $request->uri) =~ m#^http:#) {# Fix to allow (by correcting) requests passed through from http://ua2/uaHTTP/
+      $uri =~ s#^http://[^/]+##;
+    }
+
+    if (($uri ||= $request->uri) =~ m#&amp;#) { # Fix for Opera to convert &amp; to &
+      $uri =~ s#&amp;#&#g;
+    }
+
+    $request->uri($uri) if ($uri);
+
+    print "Request: ", $request->uri, "\n" if ($DEBUG);
+#    print "RequestAS: \n", $request->as_string, "\n" if ($DEBUG);
+
+    my $uaresponse;
+    my $handle;
+    my $tryhandle;
+    my $username;
+    my $password;
+
+    ($username, $password) = &extract_authorisation($request);
+    $username = lc($username);
+
+    unless ($request->uri->as_string =~ m#^/(?:images|.+\.html|ua\.css|ua\.js|favicon\.ico)#) {
+
+print "Am in loop\n" if ($DEBUG);
+
+      if (! defined($username)) {
+        &request_authorisation($connect, $request);
+        next;
+      }
+
+      unless (defined($handle{$username})) {
+
+        ($handle, $uaresponse) = &check_authorisation($username, $password, $peerhost);
+
+        if (! defined($handle)) {
+          &request_authorisation($connect, $request);
+          next;
+        }
+
+        $handle{$username} = [ $handle, $uaresponse, $password ];
+
+      } else {
+
+        ($tryhandle, $uaresponse, $trypassword) = @{$handle{$username}};
+
+        if ($trypassword ne $password) {
+          &request_authorisation($connect, $request);
+          next;
+        }
+
+        $handle = &check_handle($tryhandle);
+        unless (defined($handle)) {
+          $tryhandle->close;
+          delete $handle{$username};
+          ($handle, $uaresponse) = &check_authorisation($username, $password, $peerhost);
+          if (! defined($handle)) {
+            &request_authorisation($connect, $request);
+            next;
+          }
+          $handle{$username} = [ $handle, $uaresponse, $password ];
+        }
+
+      }
+
+    }
+
+    FORK: {
+      if ($pid = fork) {
+        close $connect;
+      } elsif (defined $pid) {
+        $SIG{__DIE__} = 'DEFAULT';
+        print "Forking: $$\n";
+        close $server;
+        &process_request($connect, $request, $handle, $uaresponse, $username);
+        print "Exiting: $$\n" if ($DEBUG);
+        exit;
+      } elsif ($! == EAGAIN) {
+        sleep 5;
+        redo FORK;
+      } else {
+        die "Cannot fork: $!\n";
+      }
+    }
+
+  }
+
+  $connect->close;
+  undef $connect;
+
+}
+
+close(LOG);
+
+BEGIN {
+  $0 = "uaHTTP";
+}
+

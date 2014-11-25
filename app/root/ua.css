@@ -1,0 +1,74 @@
+body, td { font-family: Verdana, Arial, Helvetica, sans-serif; color: #000000 }
+
+body { background-color: #FFFBF7 }
+
+td { vertical-align:top }
+
+a { text-decoration: none }
+
+.fl, .announce { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 8pt; color: #000000 }
+.announce { margin-left: 2px; margin-top: 0px }
+
+.un { font-weight: bold }
+.ra { font-weight: normal }
+
+.headers, .title, .headinput
+   { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 8pt; background-color: #FFFFCC; font-weight: bold; border: 1px solid #000000; padding: 2px; vertical-align:top; }
+
+.htext { font-weight: normal }
+
+.date { font-size: 8pt; font-style: italic }
+.subj { font-size: 10pt }
+.auth { font-size: 8pt }
+.nest { font-size: 8pt }
+
+img { vertical-align: bottom }
+
+.message, .messagemono { margin: 6px; padding: 4px; border: 1px solid #000000; background-color: #ffffff; font-size: 10pt; font-weight: normal; width: 100% }
+.messagemono, .messagemono .vote table, .messagemono .vote td { font-family: "Lucida Console", "Courier New", Courier, mono, monospace; }
+.message { font-family: Verdana, Arial, Helvetica, sans-serif; }
+
+.message .vote table, .messagemono .vote table { margin-left: 12px; margin-top: 1ex; border-left: #000000 3px double }
+.message .vote td, .messagemono .vote td { font-size: 10pt; }
+
+.title { margin: 6px; padding: 0px; border: 0px solid #000000; }
+
+.headinput { margin: 0px; padding: 0px 2px; background-color: #ffffff }
+
+.err { font-size: 10pt; color: #ff3333; font-weight: bold; margin-bottom: 2ex} 
+
+.button { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 8pt; background-color: #FFFFCC; font-weight: bold; border: 1px solid #000000;}
+
+.buttonhole { text-align: right; padding-right: 8px; padding-bottom: 8px }
+
+.notetext { font-weight: normal ; background-color: #ffffff; padding: 2px; margin: 2px; width: 100%; border: #000000 1px solid;}
+
+.noteholder { padding-right: 8px; width: 100%}
+
+.wholist { border: 1px solid #000000; vertical-align: middle; }
+.whotitle { font-weight: bold; background-color: #FFFFCC;  vertical-align: middle;}
+
+.wholist TD { font-size: 8pt }
+.whoagent TD { color: #808080; }
+.whonone TD { color: #000000; }
+.whoguest TD { color: #000000; }
+.whomessages TD { color: #000000; }
+.whoeditor TD { color: #000000; }
+.whowitness TD { color: #000000; }
+.whosysop TD { color: #000000; }
+
+.time { text-align: right; font-family: "Lucida Console", "Courier New", Courier, mono, monospace; vertical-align: middle}
+
+.imgclick { cursor: hand; }
+
+.fs, .fu { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 8pt; color: #000000; font-weight: normal; background-color: #ffffcc }
+.fu { color: #606060}
+
+.announce .lastupdate {
+  position: absolute; right: 0px; top: 0px;
+  border-bottom: 1px solid black;
+  border-left: 1px solid black;
+  padding: 0px 1px 0px 1px;
+  background-color: #fffbf7;
+  font-weight: bold;
+}
