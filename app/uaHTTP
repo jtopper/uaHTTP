@@ -184,6 +184,8 @@ print "Server established: ", $server->url, "\n" if ($DEBUG);
 
 while (my $connect = $server->accept) {
 
+  $connect->timeout(30);
+
   my $peerhost = $connect->peerhost;
 
   print "Connect from ", $peerhost, "\n" if ($DEBUG);
