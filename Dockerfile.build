@@ -1,0 +1,7 @@
+FROM centos:7
+WORKDIR /root/
+COPY . src
+
+RUN cd src && ./build.sh
+
+CMD ["/usr/bin/perl", "-I", "/srv/uahttp", "/srv/uahttp/uaHTTP", "server", "server"]
