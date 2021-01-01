@@ -3,7 +3,8 @@
 set -x
 set -e
 
-yum -y install epel-release
+yum -y install epel-release dnf-plugins-core
+yum config-manager --set-enabled powertools
 
 yum -y install \
     perl-HTTP-Daemon-SSL
