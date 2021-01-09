@@ -36,6 +36,6 @@ jobs:
           ECR_REPOSITORY: unaxcess/${{ github.event.repository.name }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          LC_ECR_REPOSITORY=$(echo qUAck | awk '{print tolower($0)}')
+          LC_ECR_REPOSITORY=$(echo "$ECR_REPOSITORY" | awk '{print tolower($0)}')
           docker build --file Dockerfile.build -t $ECR_REGISTRY/$LC_ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$LC_ECR_REPOSITORY:$IMAGE_TAG
